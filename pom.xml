@@ -6,8 +6,8 @@
     <version>0.1.0-SNAPSHOT</version>
     <properties>
         <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
-        <protobuf.version>3.10.0</protobuf.version>
-        <org.slf4j.version>1.7.26</org.slf4j.version>
+        <protobuf.version>3.11.4</protobuf.version>
+        <org.slf4j.version>1.7.30</org.slf4j.version>
         <logback.version>1.2.3</logback.version>
         <org.bouncycastle.version>1.64</org.bouncycastle.version>
         <kafka.version>1.1.1</kafka.version>
@@ -15,10 +15,16 @@
         <!-- plugins-->
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
-        <maven-assembly-plugin.version>3.1.1</maven-assembly-plugin.version>
+        <maven-assembly-plugin.version>3.2.0</maven-assembly-plugin.version>
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+
+        <junit-jupiter.version>5.6.0</junit-jupiter.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <dependencies>
@@ -31,7 +37,7 @@
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
+            <artifactId>slf4j-api</artifactId>
             <version>${org.slf4j.version}</version>
         </dependency>
         <!-- security -->
@@ -85,9 +91,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -122,6 +128,11 @@
             </extension>
         </extensions>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -198,8 +209,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>
                 <executions>

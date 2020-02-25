@@ -14,7 +14,7 @@ import java.security.Security;
 import java.security.cert.Certificate;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class PkiServerMock {
 
@@ -87,7 +87,7 @@ public class PkiServerMock {
 
             http.sendResponseHeaders(200, writer.toString().getBytes(StandardCharsets.UTF_8).length);
             try (OutputStream os = http.getResponseBody()) {
-                http.getResponseBody().write(writer.toString().getBytes(StandardCharsets.UTF_8));
+                os.write(writer.toString().getBytes(StandardCharsets.UTF_8));
             }
         }
         catch (Exception e) { e.printStackTrace(); }

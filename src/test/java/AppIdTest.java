@@ -1,15 +1,12 @@
-import dsh.messages.common.Envelope;
 import dsh.internal.AppId;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import dsh.messages.Envelope;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AppIdTest {
 
@@ -32,35 +29,36 @@ public class AppIdTest {
         assertEquals("myapp", i.name());
 
         assertEquals(
-                Envelope.Identity.newBuilder().setTenant("root").setPublisher("myapp").build(),
+                Envelope.Identity.newBuilder().setTenant("root").setApplication("myapp").build(),
                 i.identity()
         );
     }
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Test
-    public void createShouldFail_onMissingLeadingSlash() {
-        exception.expect(IllegalArgumentException.class);
-        AppId.from("root/x/y/z/myapp");
+    public void createShouldWork_onMissingLeadingSlash() {
+        AppId i = AppId.from("root/sub1/sub2/myapp");
+        assertEquals("root", i.root());
+        assertEquals(Stream.of("root", "sub1", "sub2").collect(Collectors.toCollection(HashSet::new)), i.groups());
+        assertEquals("myapp", i.name());
+
+        assertEquals(
+                Envelope.Identity.newBuilder().setTenant("root").setApplication("myapp").build(),
+                i.identity()
+        );
     }
 
     @Test
     public void createShouldFail_onMissingLevels() {
-        exception.expect(IllegalArgumentException.class);
-        AppId.from("/myapp");
+        assertThrows(IllegalArgumentException.class, () -> AppId.from("/myapp"));
     }
 
     @Test
     public void createShouldFail_onEmpty() {
-        exception.expect(IllegalArgumentException.class);
-        AppId.from("");
+        assertThrows(IllegalArgumentException.class, () -> AppId.from(""));
     }
 
     @Test
     public void createShouldFail_onNull() {
-        exception.expect(IllegalArgumentException.class);
-        AppId.from(null);
+        assertThrows(IllegalArgumentException.class, () -> AppId.from(null));
     }
 }

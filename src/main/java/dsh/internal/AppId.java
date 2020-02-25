@@ -1,6 +1,6 @@
 package dsh.internal;
 
-import dsh.messages.common.Envelope;
+import dsh.messages.Envelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class AppId {
     private static final Logger logger = LoggerFactory.getLogger(AppId.class);
 
-    private static Pattern appIdSplitter = Pattern.compile("^/([^/]+(?:/[^/]+)*)/([^/]+)$");
+    private static Pattern appIdSplitter = Pattern.compile("^[/]{0,1}([^/]+(?:/[^/]+)*)/([^/]+)$");
     private static final int APPID_GROUPS_IDX = 1;
     private static final int APPID_NAME_IDX = 2;
 
@@ -46,7 +46,10 @@ public class AppId {
     }
 
     private AppId() { throw new AssertionError(); }
-    private AppId(String appId) { this.appId = appId; }
+    private AppId(String appId) {
+        if(! isValidAppId(appId)) throw new IllegalArgumentException();
+        this.appId = appId;
+    }
 
     private final String appId;
 
@@ -73,7 +76,7 @@ public class AppId {
      * @return
      */
     public Envelope.Identity identity() {
-        return Envelope.Identity.newBuilder().setTenant(root()).setPublisher(name()).build();
+        return Envelope.Identity.newBuilder().setTenant(root()).setApplication(name()).build();
     }
 
     @Override
@@ -87,8 +90,18 @@ public class AppId {
      * @return
      */
     public static AppId from(String appId) {
-        if(isValidAppId(appId)) return new AppId(appId);
-        else throw new IllegalArgumentException("invalid application-id");
+        return new AppId(appId);
     }
 
+    /**
+     *
+     * @param app
+     * @param groups
+     * @return
+     */
+    public static AppId from(String app, String... groups) {
+        return new AppId(
+                String.join("/", groups) + "/" + app
+        );
+    }
 }

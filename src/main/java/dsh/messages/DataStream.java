@@ -1,12 +1,17 @@
 package dsh.messages;
 
+import dsh.internal.StringUtils;
+
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  *
  */
-public class DataStream implements Comparable<DataStream> {
+public class DataStream implements Comparable<DataStream>, Serializable {
+    private static final long serialVersionUID = 4385793608612059488L;
+
     @Override
     public int compareTo(DataStream that) {
         return (this.type.prefix() + dot + this.name).compareTo(that.type.prefix() + dot + that.name);
@@ -37,7 +42,7 @@ public class DataStream implements Comparable<DataStream> {
         public String prefix() { return this.prefix; }
 
         public static StreamType fromPrefix(String prefix) {
-            return  Arrays.stream(StreamType.values()).filter(e -> e.prefix.equals(prefix)).findFirst().orElseThrow(IllegalArgumentException::new);
+            return  Arrays.stream(StreamType.values()).filter(e -> e.prefix.equals(prefix.trim().toLowerCase())).findFirst().orElseThrow(IllegalArgumentException::new);
         }
     }
 
@@ -85,20 +90,41 @@ public class DataStream implements Comparable<DataStream> {
         return this.type.prefix() + colon + this.name;
     }
 
+    public String fullName() {
+        return this.type.prefix() + dot + this.name;
+    }
+
     /**
      *
      * @param s
      * @return
      */
-    public static DataStream parse(String s) {
+    public static DataStream of(String s) {
         if (s == null) return null;
 
         List<String> parts = (s.contains(String.valueOf(colon)))
-                ? Utils.topicSplit(s, colon)
-                :  Utils.topicSplit(s, dot);
+                ? StringUtils.topicSplit(s, colon)
+                : StringUtils.topicSplit(s, dot);
 
-        return new DataStream(StreamType.fromPrefix(parts.get(0)), parts.get(1));
+        if(parts.size() < 2 || parts.get(0).trim().isEmpty() || parts.get(1).trim().isEmpty()) throw new IllegalArgumentException();
+        return new DataStream(StreamType.fromPrefix(parts.get(0).trim()), parts.get(1).trim());
     }
+
+    /**
+     *
+     * @param typ
+     * @param name
+     * @return
+     */
+    public static DataStream of(StreamType typ, String name) { return new DataStream(typ, name); }
+
+    /**
+     *
+     * @param typ
+     * @param name
+     * @return
+     */
+    public static DataStream of(String typ, String name) { return new DataStream(StreamType.fromPrefix(typ), name); }
 
     private static final char dot = '.';
     private static final char colon = ':';

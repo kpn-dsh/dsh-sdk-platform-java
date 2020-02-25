@@ -4,14 +4,19 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class StreamMock {
+
+    public final static String APP = "xxx_application";
+    public final static String UUID = "00000000-0000-0000-0000-000000000000";
 
     public static String dataStreamProps(String tenant) {
         Properties props = new Properties();
         props.put("bootstrap.servers", "broker-0.kafka.marathon.mesos:9091,broker-1.kafka.marathon.mesos:9091,broker-2.kafka.marathon.mesos:9091");
-        props.put("consumerGroups.shared", "group_1,group_2,group_3");
-        props.put("consumerGroups.private", "group_private_1,group_private_2,group_private_3");
+        props.put("consumerGroups.shared", IntStream.of(1,2,3).mapToObj(n -> APP + "_" + n).collect(Collectors.joining(",")));
+        props.put("consumerGroups.private", IntStream.of(1,2,3).mapToObj(n -> APP + "." + UUID + "_" + n).collect(Collectors.joining(",")));
         props.put("security.protocol", "SSL");
         props.put("ssl.truststore.location", "truststore.jks");
         props.put("ssl.truststore.password", "truststore.password");
@@ -45,7 +50,7 @@ public class StreamMock {
         props.put("datastream.scratch.black-mesa.partitioningDepth", "0");
 
         try(StringWriter writer = new StringWriter()) {
-            props.list(new PrintWriter(writer));
+            props.store(new PrintWriter(writer), null);
             return writer.getBuffer().toString();
         }
         catch (IOException e) { return null; }

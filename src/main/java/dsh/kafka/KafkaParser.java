@@ -1,6 +1,6 @@
 package dsh.kafka;
 
-import dsh.pki.Pki;
+import dsh.sdk.Sdk;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -8,8 +8,12 @@ import org.apache.kafka.common.config.SslConfigs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static dsh.kafka.KafkaConfig.CONSUMERGROUP_PRIVATE_CONFIG;
+import static dsh.kafka.KafkaConfig.CONSUMERGROUP_SHARED_CONFIG;
 
 /**
  *
@@ -19,33 +23,48 @@ public class KafkaParser {
 
     /**
      *
-     * @param pki  The 'Pki' object used to handshake with the platform
+     * @param sdk  The 'Pki' object used to handshake with the platform
      * @return KafkaParser object with helper functionality to access all Kafka related resources.
      */
-    public static KafkaParser parse(Pki pki) { return new KafkaParser(validate(pki)); }
-
-    private static Pki validate(Pki pki) {
-        //TODO: checks ...
-        return pki;
+    public static KafkaParser of(Sdk sdk) {
+        return new KafkaParser(addAllKafkaSsl(sdk, sdk.getProps()));
+    }
+    public static KafkaParser of(Properties props) { return new KafkaParser(props); }
+    public static KafkaParser of(Map<String, ?> map) {
+        Properties props = new Properties();
+        props.putAll(map);
+        return new KafkaParser(props);
     }
 
-    private final Pki pki;
-    private KafkaParser(Pki pki) { this.pki = pki; }
+    private final Properties kafkaProps = new Properties();
+    private final Map<ConsumerGroupType, List<String>> suggestedCg = new HashMap<>();
+
+    private KafkaParser(Properties props) {
+        kafkaProps.putAll(
+        props.keySet().stream()
+                .filter(k -> ProducerConfig.configNames().contains(k.toString()) || ConsumerConfig.configNames().contains(k.toString()))
+                .collect(Collectors.toMap(
+                        e -> e,
+                        props::get
+                ))
+        );
+
+        suggestedCg.put(ConsumerGroupType.PRIVATE, Arrays.asList(props.getProperty(CONSUMERGROUP_PRIVATE_CONFIG).split(",")));
+        suggestedCg.put(ConsumerGroupType.SHARED, Arrays.asList(props.getProperty(CONSUMERGROUP_SHARED_CONFIG).split(",")));
+    }
 
     /** */
-    private Properties addAllKafkaSsl(Properties props) {
-        Properties allProps = new Properties();
-        allProps.putAll(props);
+    private static Properties addAllKafkaSsl(Sdk sdk, Properties baseProps) {
+        Properties props = new Properties();
+        props.putAll(baseProps);
+        props.putIfAbsent(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
+        props.putIfAbsent(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, sdk.getPki().getPassword());
+        props.putIfAbsent(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, sdk.getPki().getTruststoreFile().getAbsolutePath());
+        props.putIfAbsent(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, sdk.getPki().getPassword());
+        props.putIfAbsent(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, sdk.getPki().getTruststoreFile().getAbsolutePath());
+        props.putIfAbsent(SslConfigs.SSL_KEY_PASSWORD_CONFIG, sdk.getPki().getPassword());
 
-        allProps.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
-        allProps.setProperty(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, pki.getPassword());
-        allProps.setProperty(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, pki.getTruststoreFile().getAbsolutePath());
-        allProps.setProperty(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, pki.getPassword());
-        allProps.setProperty(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, pki.getKeystoreFile().getAbsolutePath());
-        allProps.setProperty(SslConfigs.SSL_KEY_PASSWORD_CONFIG, pki.getPassword());
-
-        logger.debug("Kafka SSL properties added: {}", allProps.stringPropertyNames());
-        return allProps;
+        return props;
     }
 
     /**
@@ -105,15 +124,13 @@ public class KafkaParser {
      * @return  properties fir to create a new Kafka producer
      */
     public Properties kafkaProducerProperties(Properties overrides) {
-        Properties filtered = addAllKafkaSsl(new Properties());
+        Properties filtered = new Properties();
         filtered.putAll(
                 ProducerConfig.configNames().stream()
-                        .filter(pki.getProps()::containsKey)
-                        .sorted()
+                        .filter(kafkaProps::containsKey)
                         .collect(Collectors.toMap(
-                                s -> s, pki.getProps()::getProperty,
-                                (e1, e2) -> e2,
-                                LinkedHashMap::new
+                                k -> k,
+                                kafkaProps::get
                         ))
         );
 
@@ -144,15 +161,13 @@ public class KafkaParser {
      * @return  properties fit to create a new Kafka Consumer
      */
     public Properties kafkaConsumerProperties(Properties overrides) {
-        Properties filtered = addAllKafkaSsl(new Properties());
+        Properties filtered = new Properties();
         filtered.putAll(
                 ConsumerConfig.configNames().stream()
-                        .filter(pki.getProps()::containsKey)
-                        .sorted()
+                        .filter(kafkaProps::containsKey)
                         .collect(Collectors.toMap(
-                                s -> s, pki.getProps()::getProperty,
-                                (e1, e2) -> e2,
-                                LinkedHashMap::new
+                                k -> k,
+                                kafkaProps::get
                         ))
         );
 
@@ -161,21 +176,12 @@ public class KafkaParser {
     }
 
     /** */
-    public String takeConsumerGroup(ConsumerGroupType typ) {
+    public String suggestedConsumerGroup(ConsumerGroupType typ) {
         return allConsumerGroups(typ).stream().sorted().findFirst().orElseThrow(NoSuchElementException::new);
     }
 
     /** */
-    public Set<String> allConsumerGroups(ConsumerGroupType typ) {
-        try {
-            switch (typ) {
-                case PRIVATE: return new HashSet<>(Arrays.asList(pki.getProps().getProperty("consumerGroups.private").split(",")));
-                case SHARED:  return new HashSet<>(Arrays.asList(pki.getProps().getProperty("consumerGroups.shared").split(",")));
-                default: throw new IllegalArgumentException("Invalid consumergroup type");
-            }
-        }
-        catch (Exception e) {
-            throw new IllegalArgumentException("Invalid consumergroup config", e);
-        }
+    public List<String> allConsumerGroups(ConsumerGroupType typ) {
+        return suggestedCg.getOrDefault(typ, Collections.emptyList());
     }
 }

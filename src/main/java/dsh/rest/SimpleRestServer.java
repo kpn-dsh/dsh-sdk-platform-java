@@ -29,16 +29,33 @@ public class SimpleRestServer implements Runnable, Closeable {
         private Integer port;
         private Map<String, Supplier<?>> services = new HashMap<>();
 
+        /**
+         *
+         * @param port
+         * @return
+         */
         public Builder withPort(Integer port) {
             this.port = port;
             return this;
         }
 
+        /**
+         *
+         * @param path
+         * @param provider
+         * @param <T>
+         * @return
+         */
         public <T> Builder withListener(String path, Supplier<T> provider) {
             services.putIfAbsent(path, provider);
             return this;
         }
 
+        /**
+         *
+         * @return
+         * @throws IOException
+         */
         public SimpleRestServer build() throws IOException {
             SimpleRestServer rest = new SimpleRestServer();
             rest.server = HttpServer.create(new InetSocketAddress(this.port == null ? HttpUtils.freePort() : this.port), 0);
@@ -117,5 +134,4 @@ public class SimpleRestServer implements Runnable, Closeable {
      * @return
      */
     public InetSocketAddress address() { return server.getAddress(); }
-
 }

@@ -264,4 +264,16 @@ object JobConfig {
 }
 ``` 
 
+## Building the SDK
+
+### local deployment
+
+`mvn clean install`
+> This will build, test, create the JavaDocs and install the SDK in your local Maven repo
+
+### making a new release
+
+`mvn clean deploy`
+> Make sure the version in the `pom.xml` file is updated correctly.
+
 [logo] icons/logo.png

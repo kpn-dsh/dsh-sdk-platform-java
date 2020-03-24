@@ -1,4 +1,4 @@
-package dsh.kafka.serdes;
+package dsh.sdk.kafka.serdes;
 
 import dsh.messages.Envelope;
 import dsh.messages.Serdes;

@@ -1,4 +1,4 @@
-import dsh.internal.StringUtils;
+import dsh.sdk.internal.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

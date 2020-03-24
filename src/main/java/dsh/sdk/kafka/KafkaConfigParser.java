@@ -1,4 +1,4 @@
-package dsh.kafka;
+package dsh.sdk.kafka;
 
 import dsh.sdk.Sdk;
 import org.apache.kafka.clients.CommonClientConfigs;
@@ -8,38 +8,50 @@ import org.apache.kafka.common.config.SslConfigs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static dsh.kafka.KafkaConfig.CONSUMERGROUP_PRIVATE_CONFIG;
-import static dsh.kafka.KafkaConfig.CONSUMERGROUP_SHARED_CONFIG;
+import static dsh.sdk.kafka.KafkaConfig.CONSUMERGROUP_PRIVATE_CONFIG;
+import static dsh.sdk.kafka.KafkaConfig.CONSUMERGROUP_SHARED_CONFIG;
 
 /**
+ * Utility class to query all Kafka related config from to be used in the application.
  *
+ * The KafkaParser typically is configured from the Sdk object.
+ * <pre>{@code
+ *   Sdk sdk = new Sdk.Builder().autoDetect().build()
+ *   KafkaParser parser = KafkaParser.of(sdk)
+ * }</pre>
  */
-public class KafkaParser {
-    private static final Logger logger = LoggerFactory.getLogger(KafkaParser.class);
+public class KafkaConfigParser {
+    private static final Logger logger = LoggerFactory.getLogger(KafkaConfigParser.class);
 
     /**
      *
      * @param sdk  The 'Pki' object used to handshake with the platform
      * @return KafkaParser object with helper functionality to access all Kafka related resources.
      */
-    public static KafkaParser of(Sdk sdk) {
-        return new KafkaParser(addAllKafkaSsl(sdk, sdk.getProps()));
+    public static KafkaConfigParser of(Sdk sdk) {
+        return new KafkaConfigParser(addAllKafkaSsl(sdk, sdk.getProps()));
     }
-    public static KafkaParser of(Properties props) { return new KafkaParser(props); }
-    public static KafkaParser of(Map<String, ?> map) {
+    public static KafkaConfigParser of(Properties props) { return new KafkaConfigParser(props); }
+    public static KafkaConfigParser of(Map<String, ?> map) {
         Properties props = new Properties();
         props.putAll(map);
-        return new KafkaParser(props);
+        return new KafkaConfigParser(props);
     }
 
     private final Properties kafkaProps = new Properties();
     private final Map<ConsumerGroupType, List<String>> suggestedCg = new HashMap<>();
 
-    private KafkaParser(Properties props) {
+    private void setSuggestedCgFromConfig(Properties props, String key, ConsumerGroupType cgType) {
+        Optional.ofNullable(props.getProperty(key))
+                .map(s -> Arrays.asList(s.split(",")))
+                .filter(cgs -> ! cgs.isEmpty())
+                .ifPresent(cgs -> suggestedCg.put(cgType, cgs));
+    }
+
+    private KafkaConfigParser(Properties props) {
         kafkaProps.putAll(
         props.keySet().stream()
                 .filter(k -> ProducerConfig.configNames().contains(k.toString()) || ConsumerConfig.configNames().contains(k.toString()))
@@ -49,8 +61,8 @@ public class KafkaParser {
                 ))
         );
 
-        suggestedCg.put(ConsumerGroupType.PRIVATE, Arrays.asList(props.getProperty(CONSUMERGROUP_PRIVATE_CONFIG).split(",")));
-        suggestedCg.put(ConsumerGroupType.SHARED, Arrays.asList(props.getProperty(CONSUMERGROUP_SHARED_CONFIG).split(",")));
+        setSuggestedCgFromConfig(props, CONSUMERGROUP_PRIVATE_CONFIG, ConsumerGroupType.PRIVATE);
+        setSuggestedCgFromConfig(props, CONSUMERGROUP_SHARED_CONFIG, ConsumerGroupType.SHARED);
     }
 
     /** */
@@ -78,9 +90,9 @@ public class KafkaParser {
      *                                       );
      * </pre>
      *
-     * @param groupId
-     * @param props
-     * @return
+     * @param groupId custom consumergroup id to be added to the properties
+     * @param props configuration properties
+     * @return new Properties containing the original ones added with the config for the custom consumer group
      */
     public static Properties addConsumerGroup(String groupId, Properties props) {
         Properties allProps = new Properties();
@@ -175,12 +187,24 @@ public class KafkaParser {
         return filtered;
     }
 
-    /** */
+    /**
+     * Request the suggested consumergroup id to use for your Kafka consumer.
+     *
+     * @param typ the type of consumer group you want: SHARED or PRIVATE
+     *            {@link ConsumerGroupType}
+     * @return the suggested consumergroup id to use
+     */
     public String suggestedConsumerGroup(ConsumerGroupType typ) {
         return allConsumerGroups(typ).stream().sorted().findFirst().orElseThrow(NoSuchElementException::new);
     }
 
-    /** */
+    /**
+     * Get a list of all consumergroup id suggestions
+     *
+     * @param typ the type of consumer group you want: SHARED or PRIVATE
+     *            {@link ConsumerGroupType}
+     * @return list of consumergroup ids that _can_ be used.
+     */
     public List<String> allConsumerGroups(ConsumerGroupType typ) {
         return suggestedCg.getOrDefault(typ, Collections.emptyList());
     }

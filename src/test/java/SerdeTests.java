@@ -1,20 +1,23 @@
 import com.google.protobuf.ByteString;
-import dsh.kafka.serdes.DataEnvelopeDeserializer;
-import dsh.kafka.serdes.DataEnvelopeSerializer;
-import dsh.kafka.serdes.KeyEnvelopeDeserializer;
-import dsh.kafka.serdes.KeyEnvelopeSerializer;
 import dsh.messages.Envelope;
+import dsh.messages.Serdes;
+import dsh.sdk.kafka.serdes.DataEnvelopeDeserializer;
+import dsh.sdk.kafka.serdes.DataEnvelopeSerializer;
+import dsh.sdk.kafka.serdes.KeyEnvelopeDeserializer;
+import dsh.sdk.kafka.serdes.KeyEnvelopeSerializer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestReporter;
 import utils.Loop;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SerdeTests {
     private static final Logger logger = Logger.getLogger(SerdeTests.class.getName());
@@ -99,5 +102,57 @@ public class SerdeTests {
     public void dataEnvelopeSerializationShouldBeFast(TestReporter testReporter) {
         long ops = new Loop(5, TimeUnit.SECONDS).run(() -> data_serializer.serialize(null, refValue)).ops();
         testReporter.publishEntry("data serializing ops/s", Long.toString(ops));
+    }
+
+    @Test
+    public void dataEnvelopeDeserializingFunctionCanBeMapped() {
+        List<Envelope.DataEnvelope> a = Arrays.asList(
+                Envelope.DataEnvelope.newBuilder().build(),
+                Envelope.DataEnvelope.newBuilder().build(),
+                Envelope.DataEnvelope.newBuilder().build()
+        );
+        List<byte[]> la = a.stream().map(Serdes.serializeValue).collect(Collectors.toList());
+
+        assertEquals(
+                3,
+                la.size()
+        );
+    }
+
+    @Test
+    public void keyEnvelopeDeserializingFunctionCanBeMapped() {
+        List<Envelope.KeyEnvelope> a = Arrays.asList(
+                Envelope.KeyEnvelope.newBuilder().build(),
+                Envelope.KeyEnvelope.newBuilder().build(),
+                Envelope.KeyEnvelope.newBuilder().build()
+        );
+        List<byte[]> la = a.stream()
+                .map(Serdes.serializeKey)
+                .collect(Collectors.toList());
+
+        assertEquals(
+                3,
+                la.size()
+        );
+    }
+
+    @Test
+    public void keyEnvelopeDeserializerThrowsException() {
+        assertThrows(Serdes.SerializationException.class, () -> Serdes.deserializeKey.apply(new byte[]{0,1,2,3,4,5}));
+    }
+
+    @Test
+    public void keyEnvelopeKafkaDeserializerThrowsException() {
+        assertThrows(org.apache.kafka.common.errors.SerializationException.class, () -> key_deserializer.deserialize("some-topic", new byte[]{0,1,2,3,4,5}));
+    }
+
+    @Test
+    public void dataEnvelopeDeserializerThrowsException() {
+        assertThrows(Serdes.SerializationException.class, () -> Serdes.deserializeValue.apply(new byte[]{0,1,2,3,4,5}));
+    }
+
+    @Test
+    public void dataEnvelopeKafkaDeserializerThrowsException() {
+        assertThrows(org.apache.kafka.common.errors.SerializationException.class, () -> data_deserializer.deserialize("some-topic", new byte[]{0,1,2,3,4,5}));
     }
 }

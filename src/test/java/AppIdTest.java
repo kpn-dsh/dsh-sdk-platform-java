@@ -1,5 +1,5 @@
-import dsh.internal.AppId;
 import dsh.messages.Envelope;
+import dsh.sdk.internal.AppId;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;

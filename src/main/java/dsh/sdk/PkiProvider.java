@@ -1,10 +1,17 @@
 package dsh.sdk;
 
-import dsh.internal.AppId;
+import dsh.sdk.internal.AppId;
 
 import java.io.File;
 import java.util.Properties;
 
+/**
+ * Interface for usage inside the SDK
+ * The class deriving from this interface implements the actions needed to get the required data
+ * to feed to the individual parsers that are initialized from the main SDK object.
+ *
+ * It basically defines the internal API that is used to give the individial parsers access to the data they require.
+ */
 public interface PkiProvider {
 
     /**
@@ -19,40 +26,34 @@ public interface PkiProvider {
     }
 
     /**
-     *
-     * @return
+     * Application ID
      */
     AppId getAppId();
 
     /**
-     *
-     * @return
+     * Task ID
      */
     String getTaskId();
 
     /**
-     *
-     * @return
+     * Keystore/Truststore password
      */
     String getPassword();
 
     /**
-     *
-     * @return
+     * The keystore
      * @throws PkiException
      */
     File getKeystoreFile() throws PkiException;
 
     /**
-     *
-     * @return
+     * The truststore
      * @throws PkiException
      */
     File getTruststoreFile() throws PkiException;
 
     /**
-     *
-     * @return
+     * full set of properties that can be used by any parser implementation
      * @throws PkiException
      */
     Properties getProperties() throws PkiException;

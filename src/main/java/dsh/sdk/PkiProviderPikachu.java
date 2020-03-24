@@ -1,6 +1,6 @@
 package dsh.sdk;
 
-import dsh.internal.*;
+import dsh.sdk.internal.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -18,6 +18,13 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Properties;
 
+/**
+ * Implements the {@link PkiProvider} that actually uses the platform PKI service to retrieve all required data.
+ *
+ * Communication with the PKI service will only be established when the required data is not already
+ * present in this provider.  After when the data has been fetched once, it is cached locally and the PKI service
+ * will not be contacted again.
+ */
 public class PkiProviderPikachu implements PkiProvider {
     private static final Logger logger = LoggerFactory.getLogger(PkiProviderPikachu.class);
 
@@ -36,6 +43,7 @@ public class PkiProviderPikachu implements PkiProvider {
     private PkiProviderPikachu() { throw new AssertionError(); }
 
     /**
+     * Manual initialization of the PkiProvider
      *
      * @param pkiHost
      * @param caCert
@@ -49,6 +57,7 @@ public class PkiProviderPikachu implements PkiProvider {
     }
 
     /**
+     * Manual initialization of the PkiProvider
      *
      * @param pkiHost
      * @param caCert
@@ -109,18 +118,42 @@ public class PkiProviderPikachu implements PkiProvider {
     @Override
     public String getPassword() { return password; }
 
+    /**
+     * Get the keystore (JKS) file.
+     * This might trigger comminication with the platform PKI service when
+     * the data is not in local cache yet.
+     *
+     * @return the KeyStore file
+     * @throws PkiException when communication with the PkiService fails
+     */
     @Override
     public File getKeystoreFile() throws PkiException {
         if(keystoreFile == null) handshake();
         return keystoreFile;
     }
 
+    /**
+     * Get the truststore (JKS) file.
+     * This might trigger comminication with the platform PKI service when
+     * the data is not in local cache yet.
+     *
+     * @return the TrustStore file
+     * @throws PkiException when communication with the PkiService fails
+     */
     @Override
     public File getTruststoreFile() throws PkiException {
         if(truststoreFile == null) handshake();
         return truststoreFile;
     }
 
+    /**
+     * Get the full set of application properties.
+     * This might trigger comminication with the platform PKI service when
+     * the data is not in local cache yet.
+     *
+     * @return all platform properties
+     * @throws PkiException when communication with the PkiService fails
+     */
     @Override
     public Properties getProperties() throws PkiException {
         if(props == null) props = fetchPlatformConfig();

@@ -1,6 +1,6 @@
 package dsh.sdk;
 
-import dsh.internal.AppId;
+import dsh.sdk.internal.AppId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +12,9 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Implements the {@link PkiProvider} that actually builds up all required properties from locally available configuration.
+ */
 public class PkiProviderStatic implements PkiProvider {
     private static final Logger logger = LoggerFactory.getLogger(PkiProviderStatic.class);
 
@@ -39,8 +42,8 @@ public class PkiProviderStatic implements PkiProvider {
     private static String truststoreFromProps(Properties props) { return Optional.ofNullable(props.getProperty("ssl.truststore.location")).orElseThrow(NoSuchElementException::new); }
 
     /**
-     *
-     * @param allProps
+     * Initialize this provider from available properties
+     * @param allProps all platform properties
      */
     public PkiProviderStatic(Properties allProps) {
         this.props = allProps;

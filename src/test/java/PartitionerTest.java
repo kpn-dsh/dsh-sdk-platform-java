@@ -1,6 +1,6 @@
-import dsh.kafka.partitioners.DynamicStreamPartitioner;
 import dsh.messages.Envelope;
-import dsh.streams.StreamsParser;
+import dsh.sdk.kafka.partitioners.DynamicStreamPartitioner;
+import dsh.sdk.streams.StreamsConfigParser;
 import mocks.MockKafka;
 import org.apache.kafka.clients.producer.Partitioner;
 import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
@@ -33,7 +33,7 @@ public class PartitionerTest {
         dynamicPartitioner.configure(Collections.emptyMap());
 
         long ops = new Loop(5, TimeUnit.SECONDS)
-                .run(() -> dynamicPartitioner.partition("stream.my-topic", "1234567890", "1234567890".getBytes(), null, null, mockCluster))
+                .run(() -> dynamicPartitioner.partition("stream.my-topic", "1/2/3/4/5/6/7/8/9/0", "1/2/3/4/5/6/7/8/9/0".getBytes(), null, null, mockCluster))
                 .ops();
 
         dynamicPartitioner.close();
@@ -46,7 +46,7 @@ public class PartitionerTest {
         defaultPartitioner.configure(Collections.emptyMap());
 
         long ops = new Loop(5, TimeUnit.SECONDS)
-                .run(() -> defaultPartitioner.partition("stream.my-topic", "1234567890", "1234567890".getBytes(), null, null, mockCluster))
+                .run(() -> defaultPartitioner.partition("stream.my-topic", "1/2/3/4/5/6/7/8/9/0", "1/2/3/4/5/6/7/8/9/0".getBytes(), null, null, mockCluster))
                 .ops();
 
         defaultPartitioner.close();
@@ -65,27 +65,19 @@ public class PartitionerTest {
             put("datastream.internal.mine.partitions", "24");
             put("datastream.internal.mine.partitioner", "topic-level-partitioner");
             put("datastream.internal.mine.partitioningDepth", "1");
-            // tenant-private kafka topic
-            put("datastream.scratch.mine.partitions", "24");
-            put("datastream.scratch.mine.partitioner", "default-partitioner");
         }});
 
-        Partitioner p = new DynamicStreamPartitioner(StreamsParser.of(props));
+        Partitioner p = new DynamicStreamPartitioner(StreamsConfigParser.of(props));
         Envelope.KeyEnvelope key = Envelope.KeyEnvelope.newBuilder().setKey("1/2/3/4/5/6/7/8/9/X").build();
 
         assertEquals(
-                Utils.toPositive(Utils.murmur2("123456".getBytes())) % 24,      // this is the partition key "1/2/3/4/5/6[/...]" will end up on when using 24 partitions on the topic
+                Utils.toPositive(Utils.murmur2("1/2/3/4/5/6".getBytes())) % 24,      // this is the partition key "1/2/3/4/5/6[/...]" that will end up on when using 24 partitions on the topic
                 p.partition("stream.mine.xxx", key, null, null, null, MockKafka.clusterFor("stream.mine.xxx", 24))
         );
 
         assertEquals(
-                Utils.toPositive(Utils.murmur2("1".getBytes())) % 24,      // this is the partition key "1[/...]" will end up on when using 24 partitions on the topic
+                Utils.toPositive(Utils.murmur2("1".getBytes())) % 24,      // this is the partition key "1[/...]" that will end up on when using 24 partitions on the topic
                 p.partition("internal.mine.xxx", key, null, null, null, MockKafka.clusterFor("internal.mine.xxx", 24))
-        );
-
-        assertEquals(
-                p.partition("scratch.mine.xxx", key, null, null, null, MockKafka.clusterFor("scratch.mine.xxx", 24)),
-                p.partition("scratch.mine.xxx", key, null, null, null, MockKafka.clusterFor("scratch.mine.xxx", 24))
         );
     }
 }

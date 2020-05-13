@@ -13,11 +13,11 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
+import org.bouncycastle.util.encoders.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.security.*;
 import java.security.cert.Certificate;
@@ -85,7 +85,7 @@ public class SslUtils {
             String[] tokens = pem.split(PEM_START);
             tokens = tokens[1].split(PEM_END);
 
-            byte[] buf = DatatypeConverter.parseBase64Binary(tokens[0]);
+            byte[] buf = Base64.decode(tokens[0]);
 
             logger.debug("raw content extracted from pem-length:{}, content-size:{}", pem.length(), buf.length);
             return buf;

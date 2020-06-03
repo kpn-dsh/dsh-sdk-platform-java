@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dsh-sdk</groupId>
     <artifactId>platform-java</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2-SNAPSHOT</version>
     <properties>
         <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
         <protobuf.version>3.11.4</protobuf.version>

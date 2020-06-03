@@ -73,7 +73,7 @@ public class KafkaConfigParser {
         props.putIfAbsent(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, sdk.getPki().getPassword());
         props.putIfAbsent(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, sdk.getPki().getTruststoreFile().getAbsolutePath());
         props.putIfAbsent(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, sdk.getPki().getPassword());
-        props.putIfAbsent(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, sdk.getPki().getTruststoreFile().getAbsolutePath());
+        props.putIfAbsent(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, sdk.getPki().getKeystoreFile().getAbsolutePath());
         props.putIfAbsent(SslConfigs.SSL_KEY_PASSWORD_CONFIG, sdk.getPki().getPassword());
 
         return props;

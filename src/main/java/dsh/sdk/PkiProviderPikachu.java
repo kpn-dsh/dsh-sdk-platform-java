@@ -156,7 +156,10 @@ public class PkiProviderPikachu implements PkiProvider {
      */
     @Override
     public Properties getProperties() throws PkiException {
-        if(props == null) props = fetchPlatformConfig();
+        if(props == null) {
+            if(truststoreFile == null || keystoreFile == null) handshake();
+            props = fetchPlatformConfig();
+        }
         return props;
     }
 

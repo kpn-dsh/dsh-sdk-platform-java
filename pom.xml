@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.kpn-dsh</groupId>
   <artifactId>platform-sdk-java</artifactId>
-  <version>0.2.1</version>
+  <version>0.2.2</version>
   <name>dsh-platform-sdk</name>
   <description>The Data Serviceshub (DSH) Platform SDK facilitates easier development of applications on the DSH. It abstracts over the authentication and configuration of your Kafka clients against the policies of the DSH.</description>
   <url>https://github.com/kpn-dsh/dsh-sdk-platform-java</url>
@@ -27,7 +27,7 @@
   </scm>
   <properties>
     <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
-    <protobuf.version>3.11.4</protobuf.version>
+    <protobuf.version>3.19.2</protobuf.version>
     <org.slf4j.version>1.7.30</org.slf4j.version>
     <logback.version>1.2.3</logback.version>
     <org.bouncycastle.version>1.64</org.bouncycastle.version>

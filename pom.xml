@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.kpn-dsh</groupId>
   <artifactId>platform-sdk-java</artifactId>
-  <version>0.2.3-SNAPSHOT</version>
+  <version>0.3.0</version>
   <name>dsh-platform-sdk</name>
   <description>The Data Serviceshub (DSH) Platform SDK facilitates easier development of applications on the DSH. It abstracts over the authentication and configuration of your Kafka clients against the policies of the DSH.</description>
   <url>https://github.com/kpn-dsh/dsh-sdk-platform-java</url>

@@ -24,6 +24,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -146,17 +148,25 @@ public class SslUtils {
 
     /**
      *
-     * @param dn X500 DNname
-     * @param key  key pair to sign with
+     * @param dn  X500 DNname
+     * @param key key pair to sign with
      * @param dns DNS name (optional)
+     * @param ip  IP address (optional)
      * @return Certificate signing request
      * @throws OperatorCreationException when the certificate signer could not be created
      * @throws IOException when ASN.1 encoding failed
      */
-    public static PKCS10CertificationRequest buildCsr(String dn, KeyPair key, String dns) throws OperatorCreationException, IOException {
+    public static PKCS10CertificationRequest buildCsr(String dn, KeyPair key, String dns, String ip) throws OperatorCreationException, IOException {
         JcaPKCS10CertificationRequestBuilder builder = new JcaPKCS10CertificationRequestBuilder(new X500Name(dn), key.getPublic());
-        if(dns != null && !dns.isEmpty()) {
-            GeneralNames subjectAltNames = new GeneralNames(new GeneralName(GeneralName.dNSName, dns));
+        List<GeneralName> sans = new ArrayList<>();
+        if (dns != null && !dns.trim().isEmpty()) {
+            sans.add(new GeneralName(GeneralName.dNSName, dns.trim()));
+        }
+        if (ip != null && !ip.trim().isEmpty()) {
+            sans.add(new GeneralName(GeneralName.iPAddress, ip.trim()));
+        }
+        if (!sans.isEmpty()) {
+            GeneralNames subjectAltNames = new GeneralNames(sans.toArray(new GeneralName[0]));
             ExtensionsGenerator extGen = new ExtensionsGenerator();
             extGen.addExtension(Extension.subjectAlternativeName, false, subjectAltNames);
             builder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, extGen.generate());

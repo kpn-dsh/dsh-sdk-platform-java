@@ -64,7 +64,7 @@ public class AppId {
     public Set<String> groups() { return new HashSet<>(Arrays.asList(groupsFromAppId(appId))); }
 
     /**
-     * The root-node of the group-chain the application resides in.
+     * The root node of the group-chain the application resides in.
      * (is equal to the tenant network)
      *
      * @return root node of the group-chain (= tenant identifier)

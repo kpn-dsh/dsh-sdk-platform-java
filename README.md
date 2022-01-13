@@ -48,7 +48,7 @@ In order for your application to be able to get configured through the SDK, it n
 |:--------------------------|:----------:|:------------- 
 |`DSH_SECRET_TOKEN`         | yes        | The DSH _secret_ needed to register the application with the PKI service.
 |`DSH_CA_CERTIFICATE`       | yes        | The DSH specific CA Certificate to sign against.
-|`KAFKA_CONFIG_HOST`        | yes        | The PKI service connection string
+|`DSH_KAFKA_CONFIG_ENDPOINT`| yes        | The PKI service connection string
 |`MESOS_TASK_ID`            | yes        | The task ID assigned to the application instance
 |`MARATHON_APP_ID`          | yes        | The unique application ID for your application
 |`DSH_CONTAINER_DNS_NAME`   | yes        | When serving, the DNS name

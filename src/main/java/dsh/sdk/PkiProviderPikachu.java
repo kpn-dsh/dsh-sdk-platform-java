@@ -12,10 +12,13 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.Socket;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -241,8 +244,16 @@ public class PkiProviderPikachu implements PkiProvider {
     /** */
     private void fetchKafkaCert() throws PkiException {
         String dn = getDN();
+        String dnsSAN = servesSslEndpoint ? dnsName : null;
+        String ipSAN = null;
+        if (servesSslEndpoint) {
+            Optional<String> ip = getIPAddress();
+            if (ip.isPresent()) {
+                ipSAN = ip.get();
+            }
+        }
         try {
-            Certificate cert = sign(SslUtils.buildCsr(dn, key, servesSslEndpoint? dnsName : null));
+            Certificate cert = sign(SslUtils.buildCsr(dn, key, dnsSAN, ipSAN));
             keystore.setCertificateEntry("server", cert);
             keystore.setKeyEntry("key-alias", key.getPrivate(), password.toCharArray(), new Certificate[]{cert});
 
@@ -250,6 +261,26 @@ public class PkiProviderPikachu implements PkiProvider {
         }
         catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyManagementException | CertificateException | KeyStoreException | OperatorCreationException | IOException e) {
             throw new PkiException("error while acquiring Kafka access", e);
+        }
+    }
+
+    /**
+     * Find our IP address.
+     *
+     * We set up a connection to Pikachu, and then query the connection's local address.
+     * That ensures we get the IP address that matches what pikachu sees when we interact with it,
+     * because that it the only IP address it will allow as a SAN in the CSR.
+     */
+    private Optional<String> getIPAddress() {
+        try {
+            final URL url = new URL(pkiHost);
+            try (final Socket socket = new Socket(url.getHost(), url.getPort())) {
+                final String ip = socket.getLocalAddress().getHostAddress();
+                return Optional.of(ip);
+            }
+        } catch (Exception e) {
+            logger.warn("could not detect IP address: {}", e);
+            return Optional.empty();
         }
     }
 }

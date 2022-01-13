@@ -69,12 +69,12 @@ public class Sdk {
     private static final Logger logger = LoggerFactory.getLogger(Sdk.class);
 
     //TODO: make these configurable, together with a function "how" to extract the needed info from the variable (regex?)
-    private static final String DSH_SECRET_TOKEN        = "DSH_SECRET_TOKEN";       // String -- mandatory (not empty)
-    private static final String DSH_CA_CERTIFICATE      = "DSH_CA_CERTIFICATE";     // String -- mandatory (valid cert.)
-    private static final String KAFKA_CONFIG_HOST       = "KAFKA_CONFIG_HOST";      // String -- optional (valid URL) -- mandatory for KafkaParser/StreamsParser
-    private static final String MESOS_TASK_ID           = "MESOS_TASK_ID";          // String -- mandatory (regex)
-    private static final String MARATHON_APP_ID         = "MARATHON_APP_ID";        // String -- mandatory (regex)
-    private static final String DSH_CONTAINER_DNS_NAME  = "DSH_CONTAINER_DNS_NAME"; // String -- mandatory (???)
+    private static final String DSH_SECRET_TOKEN          = "DSH_SECRET_TOKEN";           // String -- mandatory (not empty)
+    private static final String DSH_CA_CERTIFICATE        = "DSH_CA_CERTIFICATE";         // String -- mandatory (valid cert.)
+    private static final String DSH_KAFKA_CONFIG_ENDPOINT = "DSH_KAFKA_CONFIG_ENDPOINT";  // String -- optional (valid URL) -- mandatory for KafkaParser/StreamsParser
+    private static final String MESOS_TASK_ID             = "MESOS_TASK_ID";              // String -- mandatory (regex)
+    private static final String MARATHON_APP_ID           = "MARATHON_APP_ID";            // String -- mandatory (regex)
+    private static final String DSH_CONTAINER_DNS_NAME    = "DSH_CONTAINER_DNS_NAME";     // String -- mandatory (???)
 
     // fetch the value of a system property -- throw IllegalArgument Exception when not found or empty
     private static String getEnvOrThrow(String key) {
@@ -105,7 +105,7 @@ public class Sdk {
             try {
                 token = getEnvOrThrow(DSH_SECRET_TOKEN);
                 caCert = SslUtils.certificateFromPEM(getEnvOrThrow(DSH_CA_CERTIFICATE));
-                pkiHost = getEnvOrThrow(KAFKA_CONFIG_HOST);
+                pkiHost = getEnvOrThrow(DSH_KAFKA_CONFIG_ENDPOINT);
                 taskId = getEnvOrThrow(MESOS_TASK_ID);
                 appId = AppId.from(getEnvOrThrow(MARATHON_APP_ID));
                 dnsName = getEnvOrThrow(DSH_CONTAINER_DNS_NAME);

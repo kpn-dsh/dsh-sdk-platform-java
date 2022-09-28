@@ -15,10 +15,6 @@ jobs:
           distribution: zulu
           java-version: 11
           cache: maven
-      - uses: klarrio/sbt-setup-artifactory
-        with:
-          artifactory-password: ${{secrets.ARTIFACTORY_PASSWORD}}
-          artifactory-username: ${{secrets.ARTIFACTORY_USERNAME}}
       - shell: bash
         run: |
           mvn test

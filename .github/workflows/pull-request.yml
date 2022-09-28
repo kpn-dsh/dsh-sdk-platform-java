@@ -1,0 +1,24 @@
+name: Verify PR
+
+on:
+  pull_request:
+    branches:
+      - 'master'
+
+jobs:
+  pull_request:
+    name: Verify PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: 11
+          cache: maven
+      - uses: klarrio/sbt-setup-artifactory
+        with:
+          artifactory-password: ${{secrets.ARTIFACTORY_PASSWORD}}
+          artifactory-username: ${{secrets.ARTIFACTORY_USERNAME}}
+      - shell: bash
+        run: |
+          mvn test

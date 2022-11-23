@@ -165,7 +165,7 @@ configuration actions required for a Kafka Consumer and/or Producer.
 
 A very basic HTTP server is included in the SDK that can be used to return a health status or metrics.  
 
-```
+```java
    boolean isHealth()      { ... }
    String  scrapeMetrics() { ... }
  
@@ -179,7 +179,7 @@ A very basic HTTP server is included in the SDK that can be used to return a hea
 ## Usage
 
 To initialize the SDK
-```
+```java
 Sdk sdk = new Sdk.Builder().autoDetect().build()
 ```
 > This will automatically detect if the SDK needs to be initialized from 'scratch' trough environment variables given by the DSH to the container,
@@ -189,11 +189,11 @@ Sdk sdk = new Sdk.Builder().autoDetect().build()
 
 from here on the `sdk` object can be used to initialize the parsers
 1) to access Kafka specific configuration:
-    ```
+    ```java
     KafkaConfigParser kp = KafkaConfigParser.of(sdk)
     ```
 2) to access stream specific config:
-    ```
+    ```java
     StreamsConfigParser sp = StreamsConfigParser.of(sdk)
     ```
 
@@ -201,7 +201,7 @@ from here on the `sdk` object can be used to initialize the parsers
 
 The example blow describes a simple skeleton for an application on the DSH
 
-```
+```scala
   Sdk sdk = new Sdk.Builder().autoDetect().build();
   KafkaConfigParser   kafkaParser   = KafkaConfigParser.of(sdk);
   StreamsConfigParser streamsParser = StreamsConfigParser.of(sdk);
@@ -242,7 +242,7 @@ As Flink serializes the JAR and sends it over to the workers, the best approach 
 resides in a _singleton object_.  Keep in mind that in this case the Job will be initialized from the configuration
 available on the worker instances of the Flink cluster.
 
-```
+```scala
 // ---
 // Scala config object skeleton example
 // ---
@@ -268,12 +268,14 @@ object JobConfig {
 
 ### local deployment
 
-`mvn clean install`
+```shell
+mvn clean install
+```
 > This will build, test, create the JavaDocs and install the SDK in your local Maven repo
 
 ### making a new release
 
-`mvn clean deploy`
+```shell
+mvn clean deploy
+```
 > Make sure the version in the `pom.xml` file is updated correctly.
-
-[logo] icons/logo.png

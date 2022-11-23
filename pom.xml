@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.kpn-dsh</groupId>
   <artifactId>platform-sdk-java</artifactId>
-  <version>0.3.1</version>
+  <version>0.4.0</version>
   <name>dsh-platform-sdk</name>
   <description>The Data Serviceshub (DSH) Platform SDK facilitates easier development of applications on the DSH. It abstracts over the authentication and configuration of your Kafka clients against the policies of the DSH.</description>
   <url>https://github.com/kpn-dsh/dsh-sdk-platform-java</url>
@@ -27,11 +27,11 @@
   </scm>
   <properties>
     <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
-    <protobuf.version>3.19.2</protobuf.version>
-    <org.slf4j.version>1.7.30</org.slf4j.version>
-    <logback.version>1.2.3</logback.version>
-    <org.bouncycastle.version>1.64</org.bouncycastle.version>
-    <kafka.version>2.7.1</kafka.version>
+    <protobuf.version>3.21.6</protobuf.version>
+    <org.slf4j.version>2.0.1</org.slf4j.version>
+    <logback.version>1.4.1</logback.version>
+    <org.bouncycastle.version>1.70</org.bouncycastle.version>
+    <kafka.version>3.2.3</kafka.version>
     <!-- plugins-->
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
@@ -44,7 +44,7 @@
     <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
     <maven-source-plugin.version>2.3</maven-source-plugin.version>
     <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-    <junit-jupiter.version>5.6.0</junit-jupiter.version>
+    <junit-jupiter.version>5.9.0</junit-jupiter.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>

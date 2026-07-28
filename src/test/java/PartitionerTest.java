@@ -3,7 +3,7 @@ import dsh.sdk.kafka.partitioners.DynamicStreamPartitioner;
 import dsh.sdk.streams.StreamsConfigParser;
 import mocks.MockKafka;
 import org.apache.kafka.clients.producer.Partitioner;
-import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
+import org.apache.kafka.clients.producer.RoundRobinPartitioner;
 import org.apache.kafka.common.Cluster;
 import org.apache.kafka.common.utils.Utils;
 import org.junit.jupiter.api.Tag;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class PartitionerTest {
 
     private Partitioner dynamicPartitioner = new DynamicStreamPartitioner();
-    private Partitioner defaultPartitioner = new DefaultPartitioner();
+    private Partitioner defaultPartitioner = new RoundRobinPartitioner();
     private Cluster mockCluster = MockKafka.clusterFor("stream.my-topic", 24);
 
     @Test

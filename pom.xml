@@ -27,11 +27,11 @@
   </scm>
   <properties>
     <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
-    <protobuf.version>3.21.12</protobuf.version>
-    <org.slf4j.version>2.0.1</org.slf4j.version>
+    <protobuf.version>4.35.1</protobuf.version>
+    <org.slf4j.version>2.0.18</org.slf4j.version>
     <logback.version>1.4.12</logback.version>
-    <org.bouncycastle.version>1.78.1</org.bouncycastle.version>
-    <kafka.version>3.2.3</kafka.version>
+    <org.bouncycastle.version>1.84</org.bouncycastle.version>
+    <kafka.version>4.3.1</kafka.version>
     <!-- plugins-->
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
@@ -40,10 +40,10 @@
     <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
     <nexus-staging-maven-plugin.version>1.6.7</nexus-staging-maven-plugin.version>
     <maven-assembly-plugin.version>3.2.0</maven-assembly-plugin.version>
-    <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
     <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
     <maven-source-plugin.version>2.3</maven-source-plugin.version>
-    <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
     <junit-jupiter.version>5.9.0</junit-jupiter.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -185,10 +185,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <release>11</release>
           <encoding>utf-8</encoding>
-          <compilerVersion>1.8</compilerVersion>
           <compilerArgument>-Xlint:all</compilerArgument>
           <showWarnings>true</showWarnings>
           <showDeprecation>true</showDeprecation>

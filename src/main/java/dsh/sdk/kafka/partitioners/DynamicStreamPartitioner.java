@@ -3,7 +3,7 @@ package dsh.sdk.kafka.partitioners;
 import dsh.messages.Envelope;
 import dsh.sdk.streams.StreamsConfigParser;
 import org.apache.kafka.clients.producer.Partitioner;
-import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
+import org.apache.kafka.clients.producer.RoundRobinPartitioner;
 import org.apache.kafka.common.Cluster;
 
 import java.util.Map;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class DynamicStreamPartitioner implements Partitioner {
 
     private DshStreamPartitioner underlying;
-    private final Partitioner defaultPartitioner = new DefaultPartitioner();
+    private final Partitioner defaultPartitioner = new RoundRobinPartitioner();
     public static final String CONFIG_KEY = "__dynamicstreampartitioner";
 
     /**

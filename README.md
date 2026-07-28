@@ -171,7 +171,7 @@ A very basic HTTP server is included in the SDK that can be used to return a hea
  
    Service myServer = new SimpleRestServer.Builder()
                            .setListener("/health", () -> this.isHealthy())
-                           .setListener("/metrics", () -> this.scrapeMetrics())
+                           .setListener("/metrics", () -> this.scrapeMetrics());
  
    myServer.start();
 ```
@@ -180,7 +180,7 @@ A very basic HTTP server is included in the SDK that can be used to return a hea
 
 To initialize the SDK
 ```java
-Sdk sdk = new Sdk.Builder().autoDetect().build()
+Sdk sdk = new Sdk.Builder().autoDetect().build();
 ```
 > This will automatically detect if the SDK needs to be initialized from 'scratch' trough environment variables given by the DSH to the container,
 >or if it can be initialized from an existing configuration file that exists on the nodes
@@ -190,11 +190,11 @@ Sdk sdk = new Sdk.Builder().autoDetect().build()
 from here on the `sdk` object can be used to initialize the parsers
 1) to access Kafka specific configuration:
     ```java
-    KafkaConfigParser kp = KafkaConfigParser.of(sdk)
+    KafkaConfigParser kp = KafkaConfigParser.of(sdk);
     ```
 2) to access stream specific config:
     ```java
-    StreamsConfigParser sp = StreamsConfigParser.of(sdk)
+    StreamsConfigParser sp = StreamsConfigParser.of(sdk);
     ```
 
 ### Standalone App
@@ -205,15 +205,15 @@ The example blow describes a simple skeleton for an application on the DSH
   Sdk sdk = new Sdk.Builder().autoDetect().build();
   KafkaConfigParser   kafkaParser   = KafkaConfigParser.of(sdk);
   StreamsConfigParser streamsParser = StreamsConfigParser.of(sdk);
-  KafkaClientFactory  clientFactory = new KafkaClientFactory(streamsParser, kafkaParser);
+  KafkaClientFactory  clientFactory = KafkaClientFactory.of(streamsParser, kafkaParser);
 
 
   // create a new kafka producer
-  KafkaProducer[KeyEnvelope, DataEnvelope] producer = clientFactory.createStreamProducer(null);
+  KafkaProducer<Envelope.KeyEnvelope, Envelope.DataEnvelope> producer = clientFactory.createStreamProducer(null);
 
   // create a new kafka consumer
   // that will be part of the same consumergroup as other instances of this application will be.
-  KafkaConsumer[KeyEnvelope, DataEnvelope] consumer = clientFactory.createSharedStreamConsumer(null);
+  KafkaConsumer<Envelope.KeyEnvelope, Envelope.DataEnvelope> consumer = clientFactory.createSharedStreamConsumer(null);
   
   List<DataStream> myStreams = ...  // streams to consume the data from
   consumer.subscribe(subscriptionPatternFor(myStreams));

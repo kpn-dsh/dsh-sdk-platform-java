@@ -178,6 +178,9 @@ A very basic HTTP server is included in the SDK that can be used to return a hea
 
 ## Usage
 
+The SDK is available in [Maven Central](https://central.sonatype.com/artifact/io.github.kpn-dsh/platform-sdk-java/versions).
+Check the instructions on Maven Central to add it to your Maven/Gradle/... project.
+
 To initialize the SDK
 ```java
 Sdk sdk = new Sdk.Builder().autoDetect().build();
